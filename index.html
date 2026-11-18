@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PSC ക്വിസ്</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Malayalam:wght@400;600;800&display=swap">
+<style>
+:root{--bg:#f2f6f3;--card:#fff;--ink:#12211c;--mute:#5b6b65;--g:#0f4c3a;--gl:#dcebe3;--y:#f2b01e;--ok:#1b7a43;--okbg:#d9f0e2;--bad:#b3261e;--badbg:#f8dedb;--line:#cfdcd4;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1a16;--card:#162520;--ink:#e8f0ec;--mute:#9db0a8;--g:#7fd1ad;--gl:#1f3a31;--y:#f2b01e;--ok:#6fdc9c;--okbg:#1b3b2a;--bad:#ff8a80;--badbg:#42201d;--line:#2c4038}}
+:root[data-theme="dark"]{--bg:#0e1a16;--card:#162520;--ink:#e8f0ec;--mute:#9db0a8;--g:#7fd1ad;--gl:#1f3a31;--y:#f2b01e;--ok:#6fdc9c;--okbg:#1b3b2a;--bad:#ff8a80;--badbg:#42201d;--line:#2c4038}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans Malayalam",system-ui,sans-serif;line-height:1.7}
+main{max-width:560px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:1.9rem;font-weight:800;margin:8px 0 4px;color:var(--g)}
+p.sub{margin:0 0 20px;color:var(--mute)}
+.subj{display:block;width:100%;text-align:left;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px;font:inherit;color:var(--ink);cursor:pointer}
+.subj b{display:block;font-size:1.1rem;color:var(--g)}
+.subj span{color:var(--mute);font-size:.9rem}
+.subj:hover,.subj:focus-visible{border-color:var(--g);outline:none}
+.bar{height:8px;background:var(--gl);border-radius:8px;overflow:hidden;margin:6px 0 4px}
+.bar i{display:block;height:100%;background:var(--y);width:0;transition:width .3s}
+.meta{display:flex;justify-content:space-between;color:var(--mute);font-size:.9rem}
+.q{font-size:1.25rem;font-weight:600;margin:18px 0 14px;line-height:1.6}
+.opt{display:block;width:100%;text-align:left;background:var(--card);border:2px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:9px;font:inherit;color:var(--ink);cursor:pointer}
+.opt:focus-visible{outline:3px solid var(--y)}
+.opt.ok{background:var(--okbg);border-color:var(--ok)}
+.opt.bad{background:var(--badbg);border-color:var(--bad)}
+.opt:disabled{cursor:default}
+.exp{background:var(--gl);border-radius:12px;padding:12px 14px;margin:6px 0 14px}
+.btn{background:var(--g);color:var(--bg);border:0;border-radius:12px;padding:12px 20px;font:inherit;font-weight:600;cursor:pointer}
+:root:not([data-theme]) .btn{color:#fff}
+.btn.alt{background:transparent;color:var(--g);border:2px solid var(--g)}
+.score{font-size:3.4rem;font-weight:800;color:var(--g);margin:6px 0}
+.rev{border-top:1px solid var(--line);padding:10px 0}
+.rev small{color:var(--mute)}
+.hide{display:none}
+@media(prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+<main>
+<section id="home">
+<h1>PSC പ്രാക്ടീസ്</h1>
+<p class="sub">വിഷയം തിരഞ്ഞെടുക്കൂ. ഓരോ ഉത്തരത്തിനും ഉടൻ വിശദീകരണം ലഭിക്കും.</p>
+<div id="subjects"></div>
+</section>
+<section id="quiz" class="hide">
+<div class="meta"><span id="subName"></span><span id="count"></span></div>
+<div class="bar"><i id="prog"></i></div>
+<div class="q" id="qtext"></div>
+<div id="opts"></div>
+<div class="exp hide" id="exp"></div>
+<button class="btn hide" id="next">അടുത്തത്</button>
+</section>
+<section id="result" class="hide">
+<h1>ഫലം</h1>
+<div class="score" id="score"></div>
+<p id="msg"></p>
+<div id="review"></div>
+<p><button class="btn" id="again">വീണ്ടും ശ്രമിക്കൂ</button> <button class="btn alt" id="home2">വിഷയങ്ങൾ</button></p>
+</section>
+</main>
+<script>
+// ചോദ്യങ്ങൾ ഇവിടെ ചേർക്കാം: {q, o:[4 ഓപ്ഷനുകൾ], a: ശരിയുത്തരത്തിന്റെ index (0 മുതൽ), e: വിശദീകരണം}
+const BANK = {
+  "കേരള ചരിത്രവും ഭൂമിശാസ്ത്രവും": [
+    {q:"കേരള സംസ്ഥാനം രൂപീകൃതമായത് എന്ന്?",o:["1947 ഓഗസ്റ്റ് 15","1950 ജനുവരി 26","1956 നവംബർ 1","1960 മേയ് 1"],a:2,e:"സംസ്ഥാന പുനഃസംഘടനാ നിയമപ്രകാരം 1956 നവംബർ 1-ന് കേരളം രൂപീകൃതമായി."},
+    {q:"കേരളത്തിലെ ഏറ്റവും നീളം കൂടിയ നദി ഏത്?",o:["ഭാരതപ്പുഴ","പെരിയാർ","പമ്പ","ചാലിയാർ"],a:1,e:"പെരിയാറിന് ഏകദേശം 244 കി.മീ. നീളമുണ്ട്."},
+    {q:"കേരളത്തിന്റെ ആദ്യ മുഖ്യമന്ത്രി ആര്?",o:["ആർ. ശങ്കർ","പട്ടം താണുപിള്ള","സി. അച്യുതമേനോൻ","ഇ.എം.എസ്. നമ്പൂതിരിപ്പാട്"],a:3,e:"1957-ൽ ഇ.എം.എസ്. നമ്പൂതിരിപ്പാട് കേരളത്തിന്റെ ആദ്യ മുഖ്യമന്ത്രിയായി."},
+    {q:"കേരളത്തിലെ ഏറ്റവും വലിയ ജില്ല (വിസ്തീർണം) ഏത്?",o:["ഇടുക്കി","പാലക്കാട്","തൃശൂർ","മലപ്പുറം"],a:1,e:"വിസ്തീർണത്തിൽ പാലക്കാട് ഒന്നാമതാണ്. ജനസംഖ്യയിൽ മലപ്പുറമാണ് ഒന്നാമത്."},
+    {q:"കേരളത്തിലെ ജില്ലകളുടെ എണ്ണം?",o:["12","13","14","15"],a:2,e:"കേരളത്തിൽ 14 ജില്ലകളാണുള്ളത്."},
+    {q:"കേരളത്തിലെ ഏറ്റവും ഉയരം കൂടിയ കൊടുമുടി ഏത്?",o:["അഗസ്ത്യകൂടം","ആനമുടി","മീശപ്പുലിമല","ചെമ്പ്ര"],a:1,e:"ഇടുക്കിയിലെ ആനമുടിക്ക് ഏകദേശം 2695 മീറ്റർ ഉയരമുണ്ട്. ദക്ഷിണേന്ത്യയിലെ ഏറ്റവും ഉയരം കൂടിയ കൊടുമുടിയും ഇതാണ്."},
+    {q:"കേരളത്തിലെ ഏറ്റവും വലിയ കായൽ ഏത്?",o:["അഷ്ടമുടിക്കായൽ","വേമ്പനാട്ടുകായൽ","ശാസ്താംകോട്ട കായൽ","കവ്വായി കായൽ"],a:1,e:"വേമ്പനാട്ടുകായലാണ് കേരളത്തിലെ ഏറ്റവും വലിയ കായൽ. ശാസ്താംകോട്ടയാണ് ഏറ്റവും വലിയ ശുദ്ധജല തടാകം."},
+    {q:"വൈക്കം സത്യാഗ്രഹം ആരംഭിച്ച വർഷം?",o:["1919","1921","1924","1931"],a:2,e:"അയിത്തത്തിനെതിരെ 1924-ൽ വൈക്കത്ത് സത്യാഗ്രഹം ആരംഭിച്ചു."},
+    {q:"ക്ഷേത്രപ്രവേശന വിളംബരം പുറപ്പെടുവിച്ച തിരുവിതാംകൂർ മഹാരാജാവ്?",o:["മാർത്താണ്ഡവർമ്മ","സ്വാതി തിരുനാൾ","ശ്രീ ചിത്തിര തിരുനാൾ","ശ്രീമൂലം തിരുനാൾ"],a:2,e:"1936-ൽ ശ്രീ ചിത്തിര തിരുനാളാണ് ക്ഷേത്രപ്രവേശന വിളംബരം പുറപ്പെടുവിച്ചത്."},
+    {q:"‘കേരള സിംഹം’ എന്നറിയപ്പെടുന്നത് ആര്?",o:["വേലുത്തമ്പി ദളവ","പഴശ്ശിരാജ","ടിപ്പു സുൽത്താൻ","ധർമ്മരാജാ"],a:1,e:"ബ്രിട്ടീഷുകാർക്കെതിരെ പോരാടിയ പഴശ്ശിരാജ കേരള സിംഹം എന്നറിയപ്പെടുന്നു."}
+  ],
+  "ഇന്ത്യൻ ഭരണഘടന": [
+    {q:"ഇന്ത്യൻ ഭരണഘടന പ്രാബല്യത്തിൽ വന്നത് എന്ന്?",o:["1947 ഓഗസ്റ്റ് 15","1949 നവംബർ 26","1950 ജനുവരി 26","1952 ഏപ്രിൽ 1"],a:2,e:"1949 നവംബർ 26-ന് ഭരണഘടന അംഗീകരിച്ചു; 1950 ജനുവരി 26-ന് പ്രാബല്യത്തിൽ വന്നു."},
+    {q:"ഭരണഘടനാ ഡ്രാഫ്റ്റിങ് കമ്മിറ്റിയുടെ ചെയർമാൻ ആരായിരുന്നു?",o:["ജവഹർലാൽ നെഹ്റു","ഡോ. ബി.ആർ. അംബേദ്കർ","ഡോ. രാജേന്ദ്രപ്രസാദ്","സർദാർ പട്ടേൽ"],a:1,e:"ഡോ. ബി.ആർ. അംബേദ്കറായിരുന്നു ഡ്രാഫ്റ്റിങ് കമ്മിറ്റി ചെയർമാൻ."},
+    {q:"മൗലികാവകാശങ്ങൾ ഭരണഘടനയുടെ ഏത് ഭാഗത്താണ്?",o:["ഭാഗം I","ഭാഗം II","ഭാഗം III","ഭാഗം IV"],a:2,e:"ഭാഗം III-ൽ (അനുച്ഛേദം 12 മുതൽ 35 വരെ) മൗലികാവകാശങ്ങൾ വിവരിക്കുന്നു."},
+    {q:"ലോക്സഭയുടെ സാധാരണ കാലാവധി എത്ര?",o:["4 വർഷം","5 വർഷം","6 വർഷം","7 വർഷം"],a:1,e:"ലോക്സഭയുടെ കാലാവധി 5 വർഷമാണ്. രാജ്യസഭ സ്ഥിരം സഭയാണ്."},
+    {q:"ഭരണഘടനയുടെ ആമുഖത്തിൽ ഇന്ത്യയെ വിശേഷിപ്പിക്കുന്നതിൽ ഉൾപ്പെടാത്തത് ഏത്?",o:["പരമാധികാരം","സോഷ്യലിസ്റ്റ്","മതനിരപേക്ഷം","രാജവാഴ്ച"],a:3,e:"ഇന്ത്യ പരമാധികാര, സോഷ്യലിസ്റ്റ്, മതനിരപേക്ഷ, ജനാധിപത്യ റിപ്പബ്ലിക്കാണ്."},
+    {q:"ഇന്ത്യയുടെ ആദ്യ രാഷ്ട്രപതി ആര്?",o:["ഡോ. എസ്. രാധാകൃഷ്ണൻ","ഡോ. രാജേന്ദ്രപ്രസാദ്","ഡോ. സാക്കിർ ഹുസൈൻ","വി.വി. ഗിരി"],a:1,e:"ഡോ. രാജേന്ദ്രപ്രസാദ് 1950 മുതൽ 1962 വരെ രാഷ്ട്രപതിയായിരുന്നു."},
+    {q:"ജീവിക്കാനുള്ള അവകാശം ഉറപ്പാക്കുന്ന അനുച്ഛേദം?",o:["അനുച്ഛേദം 14","അനുച്ഛേദം 19","അനുച്ഛേദം 21","അനുച്ഛേദം 32"],a:2,e:"അനുച്ഛേദം 21 ജീവനും വ്യക്തിസ്വാതന്ത്ര്യത്തിനുമുള്ള അവകാശം നൽകുന്നു."},
+    {q:"നിർദ്ദേശക തത്വങ്ങൾ ഭരണഘടനയുടെ ഏത് ഭാഗത്താണ്?",o:["ഭാഗം II","ഭാഗം III","ഭാഗം IV","ഭാഗം V"],a:2,e:"രാജ്യനയത്തിന്റെ നിർദ്ദേശക തത്വങ്ങൾ ഭാഗം IV-ലാണ് (അനുച്ഛേദം 36 മുതൽ 51 വരെ)."},
+    {q:"രാജ്യസഭയുടെ എക്സ്-ഒഫീഷ്യോ ചെയർമാൻ ആര്?",o:["രാഷ്ട്രപതി","പ്രധാനമന്ത്രി","ഉപരാഷ്ട്രപതി","ലോക്സഭാ സ്പീക്കർ"],a:2,e:"ഇന്ത്യയുടെ ഉപരാഷ്ട്രപതിയാണ് രാജ്യസഭയുടെ എക്സ്-ഒഫീഷ്യോ ചെയർമാൻ."},
+    {q:"വോട്ടിംഗ് പ്രായം 21-ൽ നിന്ന് 18 ആക്കിയ ഭരണഘടനാ ഭേദഗതി?",o:["42-ാം ഭേദഗതി","44-ാം ഭേദഗതി","52-ാം ഭേദഗതി","61-ാം ഭേദഗതി"],a:3,e:"1988-ലെ 61-ാം ഭേദഗതിയാണ് (1989-ൽ പ്രാബല്യത്തിൽ) വോട്ടിംഗ് പ്രായം 18 ആക്കിയത്."}
+  ],
+  "മലയാള സാഹിത്യവും ഭാഷയും (മുൻ ചോദ്യങ്ങൾ)": [
+    {q:"‘തിക്കോടിയൻ’ എന്ന തൂലികാനാമത്തിൽ അറിയപ്പെടുന്ന സാഹിത്യകാരൻ ആര്?",o:["ആർ. രാമചന്ദ്രൻ നായർ","എം.കെ. മേനോൻ","പി. കുഞ്ഞനന്തൻ നായർ","പി.വി. അയ്യപ്പൻ"],a:2,e:"പി. കുഞ്ഞനന്തൻ നായരുടെ തൂലികാനാമമാണ് തിക്കോടിയൻ."},
+    {q:"‘കോവിലൻ’ ആരുടെ തൂലികാനാമമാണ്?",o:["പി.സി. ഗോപാലൻ","പി.സി. കുട്ടിക്കൃഷ്ണൻ","വി.വി. അയ്യപ്പൻ","എ. അയ്യപ്പൻ"],a:2,e:"വി.വി. അയ്യപ്പന്റെ തൂലികാനാമമാണ് കോവിലൻ."},
+    {q:"‘ഉറൂബ്’ ആരുടെ തൂലികാനാമമാണ്?",o:["പി.സി. കുട്ടിക്കൃഷ്ണൻ","വി. മാധവൻ നായർ","എം.കെ. ഗോപിനാഥൻ നായർ","എം.ആർ. നായർ"],a:0,e:"പി.സി. കുട്ടിക്കൃഷ്ണനാണ് ഉറൂബ് എന്ന പേരിൽ എഴുതിയത്."},
+    {q:"‘രണ്ടാമൂഴം’ എന്ന നോവലിലെ പ്രധാന കഥാപാത്രം ആര്?",o:["അർജുനൻ","ശ്രീകൃഷ്ണൻ","കർണ്ണൻ","ഭീമൻ"],a:3,e:"എം.ടി. വാസുദേവൻ നായരുടെ രണ്ടാമൂഴം ഭീമന്റെ കഥയാണ്."},
+    {q:"ആദ്യത്തെ വയലാർ അവാർഡ് ലഭിച്ച കൃതി ഏത്?",o:["രണ്ടാമൂഴം","ഓടയിൽനിന്ന്","അഗ്നിസാക്ഷി","കയർ"],a:2,e:"ലളിതാംബിക അന്തർജനത്തിന്റെ അഗ്നിസാക്ഷിക്കാണ് ആദ്യ വയലാർ അവാർഡ് (1977) ലഭിച്ചത്."},
+    {q:"‘നജീബ്’ ഏത് കൃതിയിലെ പ്രധാന കഥാപാത്രമാണ്?",o:["ഏണിപ്പടികൾ","ആടുജീവിതം","എന്റെ കഥ","വേരുകൾ"],a:1,e:"ബെന്യാമിന്റെ ആടുജീവിതത്തിലെ നായകനാണ് നജീബ്."},
+    {q:"വൈക്കം മുഹമ്മദ് ബഷീർ അനുസ്മരണ ദിനം എന്നാണ്?",o:["ജൂൺ 5","ജനുവരി 4","ജൂലൈ 5","ഡിസംബർ 6"],a:2,e:"ബഷീർ അന്തരിച്ച ജൂലൈ 5 ബഷീർ അനുസ്മരണ ദിനമായി ആചരിക്കുന്നു."},
+    {q:"ഉള്ളൂർ എഴുതിയ സാഹിത്യ ചരിത്രത്തിന്റെ പേര് എന്ത്?",o:["കേരള സാഹിത്യ ചരിത്രം","കേരള ഭാഷാ സാഹിത്യ ചരിത്രം","ഭാഷാ സാഹിത്യ ചരിത്രം","മലയാള സാഹിത്യ ചരിത്രം"],a:0,e:"ഉള്ളൂർ എസ്. പരമേശ്വരയ്യരുടെ സാഹിത്യചരിത്രം കേരള സാഹിത്യ ചരിത്രം ആണ്."},
+    {q:"‘അമ്മ’ എന്ന പദത്തിന്റെ പര്യായമല്ലാത്തത് ഏത്?",o:["ജനയിത്രി","ജനനി","ജനയിതാവ്","ജനിത്രി"],a:2,e:"ജനയിതാവ് എന്നാൽ പിതാവ്."},
+    {q:"‘നിലാവ്’ എന്ന പദത്തിന്റെ പര്യായമല്ലാത്തത് ഏത്?",o:["കൗമുദി","പനിമതി","ജ്യോത്സ്ന","ചന്ദ്രിക"],a:1,e:"പനിമതി ചന്ദ്രനെ കുറിക്കുന്നു; മറ്റുള്ളവ നിലാവിന്റെ പര്യായങ്ങളാണ്."},
+    {q:"‘Barking dog seldom bites’ എന്നതിന്റെ മലയാള ചൊല്ല് ഏത്?",o:["കുരയ്ക്കും പട്ടി കടിക്കും","കുരയ്ക്കും പട്ടി ചിലപ്പോൾ കടിക്കും","കുരയ്ക്കും പട്ടി കടിക്കില്ല","കുരയ്ക്കും പട്ടി ഒരു നാളും കടിക്കില്ല"],a:2,e:"പഴഞ്ചൊല്ല്: കുരയ്ക്കും പട്ടി കടിക്കില്ല."},
+    {q:"‘Prevention is better than cure’ എന്നതിന് തുല്യമായ മലയാള ചൊല്ല്?",o:["ഐകമത്യം മഹാബലം","കതിരിൽ വളം വയ്ക്കരുത്","ചൊട്ടയിലെ ശീലം ചുടലവരെ","സൂക്ഷിച്ചാൽ ദുഃഖിക്കേണ്ട"],a:3,e:"രോഗം വരുംമുമ്പ് തടയുന്നതാണ് നല്ലതെന്ന ആശയം ‘സൂക്ഷിച്ചാൽ ദുഃഖിക്കേണ്ട’ എന്ന ചൊല്ലിലുണ്ട്."},
+    {q:"‘Silence is golden’ എന്നതിന് തുല്യമായ മലയാള ചൊല്ല്?",o:["ആനന്ദം","മിന്നുന്നതെല്ലാം പൊന്നല്ല","തങ്കലിപിയിൽ വരയ്ക്കുക","മൗനം ഭൂഷണം"],a:3,e:"മൗനം ഭൂഷണം എന്നാൽ മൗനം അലങ്കാരമാണ്."},
+    {q:"‘An eye for an eye’ എന്നതിന് ഉചിതമായ മലയാള ചൊല്ല്?",o:["വാളെടുത്തവൻ വാളാൽ","വിതച്ചത് കൊയ്യും","കണ്ണിന് കണ്ണ്","ഇരുതലമൂരി"],a:2,e:"തുല്യമായ പ്രതികാരത്തെ സൂചിപ്പിക്കുന്ന ചൊല്ലാണ് ‘കണ്ണിന് കണ്ണ്’."}
+  ],
+  "ഇംഗ്ലീഷ് ഗ്രാമർ": [
+    {q:"Choose the correct word: She ___ to school every day.",o:["go","goes","going","gone"],a:1,e:"Third person singular subject (she) takes ‘goes’ in simple present."},
+    {q:"What is the plural of ‘child’?",o:["childs","childes","children","childrens"],a:2,e:"‘Child’ has an irregular plural: children."},
+    {q:"Choose the antonym of ‘ancient’.",o:["old","modern","historic","aged"],a:1,e:"Ancient means very old; its opposite is modern."},
+    {q:"I have been waiting ___ two hours.",o:["since","for","from","at"],a:1,e:"Use ‘for’ with a period of time, ‘since’ with a point in time."},
+    {q:"Choose the synonym of ‘happy’.",o:["joyful","angry","tired","sad"],a:0,e:"Joyful means feeling or showing happiness."},
+    {q:"Choose the correct article: He is ___ honest man.",o:["a","an","the","no article"],a:1,e:"‘Honest’ starts with a vowel sound (the h is silent), so we use ‘an’."},
+    {q:"What is the past tense of ‘begin’?",o:["begun","beginned","began","begin"],a:2,e:"Begin – began – begun. ‘Began’ is the simple past form."},
+    {q:"Choose the correctly spelt word.",o:["Neccessary","Necessary","Necesary","Necessery"],a:1,e:"Necessary has one c and two s’s."},
+    {q:"One word for ‘a person who writes books’:",o:["Editor","Author","Reader","Publisher"],a:1,e:"An author is a person who writes books or articles."},
+    {q:"What does the idiom ‘a piece of cake’ mean?",o:["Very easy","Very sweet","Very costly","Very small"],a:0,e:"‘A piece of cake’ means something that is very easy to do."}
+  ]
+};
+const $=id=>document.getElementById(id);
+let subj,qs,i,score,log;
+const show=id=>["home","quiz","result"].forEach(s=>$(s).classList.toggle("hide",s!==id));
+function shuffle(a){a=a.slice();for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]]}return a}
+function home(){show("home");const box=$("subjects");box.textContent="";Object.keys(BANK).forEach(n=>{const b=document.createElement("button");b.className="subj";const t=document.createElement("b");t.textContent=n;const s=document.createElement("span");s.textContent=BANK[n].length+" ചോദ്യങ്ങൾ";b.append(t,s);b.onclick=()=>start(n);box.append(b)})}
+function start(n){subj=n;qs=shuffle(BANK[n]).map(x=>{const c=x.o[x.a];const o=shuffle(x.o);return{q:x.q,o,a:o.indexOf(c),e:x.e}});i=0;score=0;log=[];show("quiz");$("subName").textContent=n;render()}
+function render(){const q=qs[i];$("count").textContent=(i+1)+" / "+qs.length;$("prog").style.width=(i/qs.length*100)+"%";$("qtext").textContent=q.q;$("exp").classList.add("hide");$("next").classList.add("hide");const box=$("opts");box.textContent="";q.o.forEach((t,k)=>{const b=document.createElement("button");b.className="opt";b.textContent=t;b.onclick=()=>answer(k);box.append(b)})}
+function answer(k){const q=qs[i];const bs=$("opts").children;[...bs].forEach((b,j)=>{b.disabled=true;if(j===q.a)b.classList.add("ok");else if(j===k)b.classList.add("bad")});if(k===q.a)score++;log.push({q:q.q,ok:k===q.a,right:q.o[q.a],e:q.e});$("exp").textContent=(k===q.a?"ശരി! ":"തെറ്റ്. ")+q.e;$("exp").classList.remove("hide");const n=$("next");n.textContent=i===qs.length-1?"ഫലം കാണുക":"അടുത്തത്";n.classList.remove("hide");n.focus()}
+$("next").onclick=()=>{if(++i<qs.length)render();else finish()};
+function finish(){show("result");$("score").textContent=score+" / "+qs.length;const p=score/qs.length;$("msg").textContent=p===1?"മികച്ചത്! എല്ലാം ശരി.":p>=.6?"നല്ല പ്രകടനം. തെറ്റിയവ ഒന്നുകൂടി നോക്കൂ.":"കുറച്ചുകൂടി പരിശീലിക്കാം. തെറ്റിയവ താഴെ കാണാം.";const r=$("review");r.textContent="";log.filter(x=>!x.ok).forEach(x=>{const d=document.createElement("div");d.className="rev";const a=document.createElement("div");a.textContent=x.q;const b=document.createElement("small");b.textContent="ശരിയുത്തരം: "+x.right+". "+x.e;d.append(a,b);r.append(d)})}
+$("again").onclick=()=>start(subj);$("home2").onclick=home;
+home();
+</script>
+</body>
+</html>
